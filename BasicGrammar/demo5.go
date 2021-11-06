@@ -15,7 +15,9 @@ import (
 func mapUse(){
 	var mp1 map[string]int = map[string]int{"Tom":1, "Jenny":2}
 	fmt.Println(mp1) 
-
+	delete(mp1, "Tom")
+	fmt.Println(mp1)
+	
 	mp2 := make(map[string]int)
 	mp2["Black"] = 3
 	fmt.Println(mp2)
