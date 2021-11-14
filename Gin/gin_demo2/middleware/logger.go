@@ -31,10 +31,10 @@ func LoggerToFile() gin.HandlerFunc {
 	logger := logrus.New()
 	logger.Out = src					// 设置输出
 	logger.SetLevel(logrus.DebugLevel)	// 设置日志级别
-	// 引入file-rotatelogs来支持日志按文件生成，且按天分割；
-	logWriter, err := rotatelogs.New(
+	// 引入file-rotatelogs来支持日志按文件生成，且按天分割；rotatelogs实现了io.Writer 
+	infoLogWriter, err := rotatelogs.New(
 		// 分割后的文件名称
-		logFile + ".%Y%m%d.log",
+		logFile + ".%Y%m%d.infoLog",
 		// 生成软链，指向最新日志文件
 		rotatelogs.WithLinkName(logFile),
 		// 设置最大保存时间(7天)
@@ -46,14 +46,27 @@ func LoggerToFile() gin.HandlerFunc {
 		fmt.Println("Rotatelogs Call New() Error!")
 		return nil
 	}
-	
+	ErrorLogWriter, err := rotatelogs.New(
+		// 分割后的文件名称
+		logFile + ".%Y%m%d.errorLog",
+		// 生成软链，指向最新日志文件
+		rotatelogs.WithLinkName(logFile),
+		// 设置最大保存时间(7天)
+		rotatelogs.WithMaxAge(7*24*time.Hour),
+		// 设置日志切割时间间隔(1天)
+		rotatelogs.WithRotationTime(24*time.Hour),
+	)
+	if err != nil {
+		fmt.Println("Rotatelogs Call New() Error!")
+		return nil
+	}
 	writeMap := lfshook.WriterMap{
-		logrus.InfoLevel:  logWriter,
-		logrus.FatalLevel: logWriter,
-		logrus.DebugLevel: logWriter,
-		logrus.WarnLevel:  logWriter,
-		logrus.ErrorLevel: logWriter,
-		logrus.PanicLevel: logWriter,
+		logrus.InfoLevel:  infoLogWriter,		// infoLogWriter订阅了Info Debug Warn级别的日志
+		logrus.DebugLevel: infoLogWriter,
+		logrus.WarnLevel:  infoLogWriter,
+		logrus.FatalLevel: ErrorLogWriter,		// ErrorLogWriter订阅了Fatal Error Panic级别的日志
+		logrus.ErrorLevel: ErrorLogWriter,
+		logrus.PanicLevel: ErrorLogWriter,
 	}
 	lfHook := lfshook.NewHook(writeMap, &logrus.JSONFormatter{
 		TimestampFormat:"2006-01-02 15:04:05",
