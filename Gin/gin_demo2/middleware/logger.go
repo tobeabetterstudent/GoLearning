@@ -22,7 +22,7 @@ func LoggerToFile() gin.HandlerFunc {
 	logName := config.LOG_FILE_NAME
 	// 合成日志文件目录
 	logFile := path.Join(logPath, logName)
-	src, err := os.OpenFile(logFile, os.O_CREATE | os.O_APPEND | os.O_WRONLY, os.ModeAppend)
+	src, err := os.OpenFile(logFile, os.O_CREATE | os.O_APPEND, os.ModeAppend)
 	if err != nil {
 		fmt.Println("OpenLogFile or CreateLogFile Error!")
 		return nil
