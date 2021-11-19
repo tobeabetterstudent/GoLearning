@@ -1,3 +1,7 @@
+// @program: 使用官方约束学习validator
+// @author: aslanwang
+// @time: 2021-11-19
+
 package main
 
 import (

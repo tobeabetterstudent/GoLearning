@@ -1,3 +1,7 @@
+// @program: 学习validator field级约束
+// @author: aslanwang
+// @time: 2021-11-19
+
 package main
 
 import (

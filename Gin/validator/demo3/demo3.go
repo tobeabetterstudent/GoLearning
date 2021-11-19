@@ -1,3 +1,6 @@
+// @program: 自定义一个field级约束
+// @author: aslanwang
+// @time: 2021-11-19
 package main
 
 import (

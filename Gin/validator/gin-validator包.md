@@ -4,7 +4,7 @@
 
 # 请求参数校验——Validator包
 
-## demo1
+## 1
 
 ### 目的：测试官方用例，首先掌握基本用法。
 
@@ -22,7 +22,7 @@
 
 ​			报错：`email`字段不是一个合法邮箱，且`age`字段超出了最大限制。
 
-## demo2
+## 2
 
 ### 目的：一个简单的示例：
 
@@ -68,6 +68,73 @@ Key: 'User.Age' Error:Field validation for 'Age' failed on the 'lte' tag
 Key: 'User.Sex' Error:Field validation for 'Sex' failed on the 'oneof' tag
 ```
 
+## 3
+
+### 目的：使用跨字段约束
+
+### 简介
+
+​	`validator`允许定义跨字段的约束，即约束该字段与其他字段之间的关系。这种约束实际上分为两种：
+
+1.  这些参数字段都是同一个结构中的平级字段
+2. 这些参数字段为结构中其他字段内部的字段，即约束的字段级次不一致。
+
+约束语法很简单，只需要稍微修改一下。例如**相等约束**（`eq`）：
+
+1. 如果是约束同级字段，则在后面添加一个`field`，使用`eqfield`定义字段间的相等约束。
+2. 如果是更深层次的字段，在`field`之前还需要加上`cs`（可以理解为`cross-struct`），`eq`就变为`eqcsfield`。它们的参数值都是需要比较的字段名，内层的还需要加上字段的类型。
+
+### 测试
+
+​	测试代码如下：
+
+```go
+// @program: 跨字段约束
+// @author: aslanwang
+// @time: 2021-11-19
+package main
+
+import (
+	"fmt"
+	
+	"github.com/go-playground/validator/v10"
+)
+type RegisterForm struct {
+  Name      string `validate:"min=2"`
+  Age       int    `validate:"min=18"`
+  Password  string `validate:"min=10"`
+  Password2 string `validate:"eqfield=Password"`
+}
+
+func main() {
+	validate := validator.New()
+
+  	f1 := RegisterForm{
+		Name:      "dj",
+		Age:       18,
+		Password:  "1234567890",
+		Password2: "1234567890",
+	}
+	err := validate.Struct(f1)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	f2 := RegisterForm{
+		Name:      "dj",
+		Age:       18,
+		Password:  "1234567890",
+		Password2: "123",
+	}
+	err = validate.Struct(f2)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+```
+
+​	结果：`f2`报错，`Key: 'RegisterForm.Password2' Error:Field validation for 'Password2' failed on the 'eqfield' tag`
+
 ## 常用约束
 
 官方文档：[[go-playground/validator: :100:Go Struct and Field validation, including Cross Field, Cross Struct, Map, Slice and Array diving (github.com)](https://github.com/go-playground/validator)]:
@@ -80,7 +147,7 @@ Key: 'User.Sex' Error:Field validation for 'Sex' failed on the 'oneof' tag
 
 ​	在`validator`中，我们直接在结构体字段中将约束放到`validate tag`中，在`gin`中则只需将约束放到`binding tag`中。
 
-### 自定义约束
+### 自定义字段约束
 
 ​	示例如下：
 
