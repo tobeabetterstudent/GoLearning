@@ -10,11 +10,11 @@ import (
 	"GoLearning/Gin/gin_demo2/controller/v1"
 	"GoLearning/Gin/gin_demo2/controller/v2"
 	"GoLearning/Gin/gin_demo2/common"
-	"GoLearning/Gin/gin_demo2/myvalidator"
-	//"github.com/gin-gonic/gin/binding"
-	"gopkg.in/go-playground/validator.v8"
 	"strconv"
 	"net/url"
+	"GoLearning/Gin/gin_demo2/myvalidator"
+	"github.com/go-playground/validator/v10"
+	"github.com/gin-gonic/gin/binding"
 )
 
 func Sign(c *gin.Context) {
@@ -44,11 +44,6 @@ func InitRouters(e *gin.Engine) {
 		group2.Any("/product/add", v2.AddProduct)
 		group2.Any("/member/add", v2.AddMember)
 	}
-	// 将自定义tag加入到validator设置中去
-	config := &validator.Config{TagName: "validate"}
-	v := validator.New(config)
-	// 注册tag validate的校验名与方法
-	v.RegisterValidation("NameValid", myvalidator.NameValid)
-	// RegisterValidation将tag 与 对应的处理函数 映射到map[string]Func中 这样根据tag就可以直接调用对应的处理函数
-	// 其中: type Func func(v *Validate, topStruct reflect.Value, currentStruct reflect.Value, field reflect.Value, fieldtype reflect.Type, fieldKind reflect.Kind, param string) bool
+	v, _ := binding.Validator.Engine().(*validator.Validate)
+	v.RegisterValidation("NameVaild", myvalidator.NameValid)
 }
